@@ -9,7 +9,7 @@ from tqdm import tqdm
 import dataloader.datautils as du
 from dataloader.arithmetic import Plus, Minus, Multiply, Divide
 from dataloader.modulo_datagen import ModuloDataGenerator
-from utils import printf
+from .utils import printf
 
 
 def mkdirp(logdir):
@@ -87,7 +87,7 @@ class BaseArithmetic(object):
         if self.curr:
             self.initial_mt = 2
             assert self.max_terms[0] == self.max_terms[1]
-            self.curriculum_schedule = range(self.initial_mt, self.max_terms_dict['train']+1)  # should change later
+            self.curriculum_schedule = list(range(self.initial_mt, self.max_terms_dict['train']+1))  # should change later
         else:
             assert self.max_terms[0] == self.max_terms[1]
             self.initial_mt = self.max_terms_dict['train']
@@ -108,7 +108,7 @@ class BaseArithmetic(object):
             dataset_name = self.create_dataset_name(mt, num_range, ops, samplefrom, episodecap, cheat, splits)
             mkdirp(os.path.join(self.root, dataset_name))
             dataset_names[mt] = {x: os.path.join(self.root, dataset_name, dataset_name + '_' + x + '.txt') for x in ['train', 'val', 'test']}
-            datasets_exist = all([os.path.exists(v) for k,v in dataset_names[mt].iteritems()])
+            datasets_exist = all([os.path.exists(v) for k,v in dataset_names[mt].items()])
             self.printer('datasets exist for {}? {}'.format(mt, datasets_exist))
             if not datasets_exist:
                 self.printer('Datasets for {} are not found! Generating data.'.format(os.path.join(self.root, dataset_name)))
@@ -203,7 +203,7 @@ class BaseArithmetic(object):
 
     def generate_unique_dataset(self, max_problems, cap, maxterms):
         problems = set()
-        for i in tqdm(xrange(int(max_problems))):
+        for i in tqdm(range(int(max_problems))):
             exp_str, exp_val, terms, ops = self.dg.create_problem(max_terms=maxterms)
             problems.add('{}={}'.format(exp_str, exp_val))
         # cap it at some max value
@@ -218,7 +218,7 @@ class BaseArithmetic(object):
             self.printer('Insufficient coverage! Trying again.')
             problems = self.ds.create_dataset_splits(lambda: self.generate_unique_dataset(samplefrom, int(episodecap), maxterms), self.cheat)
             i += 1
-        for k,v in dataset_names.iteritems():
+        for k,v in dataset_names.items():
             self.printer('Saving {}'.format(v))
             self.save_dataset(problems[k], v)
 

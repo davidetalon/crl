@@ -10,7 +10,7 @@ from networks.encoders import Identity
 from networks.functions import OperatorFixedLength, EncoderDecoderRNN, TransformFixedLength, PlainTranslator
 
 from rb import Memory
-import utils as u
+import dataloader.utils as u
 
 class CRL_MultitaskSequenceAgent(nn.Module):
     def __init__(self, indim, langsize, zsize, hdimp, hdimf, outdim, num_steps, num_actions, layersp, layersf, encoder, decoder, args, relax):
@@ -50,7 +50,7 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         # the number of actions should be 3 reducers + k num_translators + 1 identity + 1 terminate = 3 + k + 1 + 1
         self.policy = MultilingualArithmeticPolicy(controller_input_dim, hdimp, layersp, self.num_actions, self.args)
         ######################################################
-        self.translators = nn.ModuleList([PlainTranslator(indim, self.args) for i in xrange(self.ntranslators)] + [Identity()])
+        self.translators = nn.ModuleList([PlainTranslator(indim, self.args) for i in range(self.ntranslators)] + [Identity()])
         self.reducers = nn.ModuleList([TransformFixedLength(indim, hdimf, outdim, layersf, self.args) for i in range(self.nreducers)])
         self.actions = nn.ModuleList([self.reducers, self.translators])
         ######################################################
@@ -312,8 +312,8 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         group_idx, group_lengths = u.group_by_element(sorted_lengths)
 
         states = batch.state  # tuple of num_episodes of FloatTensor (1, t, state-dim), where t is variable
-        actions, secondary_actions = zip(*batch.action)
-        action_logprobs, secondary_log_probs = zip(*batch.logprob)
+        actions, secondary_actions = list(zip(*batch.action))
+        action_logprobs, secondary_log_probs = list(zip(*batch.logprob))
         action_logprobs = torch.cat(action_logprobs).data  # FloatTensor (B)
         # todo: was cat not stack/ also had to squeeze
         secondary_log_probs = torch.stack([torch.squeeze(s) for s in secondary_log_probs]).data  # FloatTensor (B)
@@ -337,7 +337,7 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         prev_return = 0
         prev_value = 0
         prev_advantage = 0
-        for i in reversed(range(rewards.size(0))):
+        for i in reversed(list(range(rewards.size(0)))):
             returns[i] = rewards[i] + gamma * prev_return * masks[i]
             deltas[i] = rewards[i] + gamma * prev_value * masks[i] - values[i]
             advantages[i] = deltas[i] + gamma * tau * prev_advantage * masks[i]
@@ -363,12 +363,10 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         all_advantages, all_returns = self.estimate_advantages(all_rewards, all_masks, all_values, gamma, tau) # (b, 1) (b, 1)
 
         # permute everything by length
-        states_p, actions_p, indices_p, returns_p, advantages_p, fixed_action_logprobs_p, fixed_index_logprobs_p = map(
-            lambda x: u.permute(x, perm_idx), [all_states, all_actions, all_indices, all_returns, all_advantages, all_fixed_action_logprobs, all_fixed_index_logprobs])
+        states_p, actions_p, indices_p, returns_p, advantages_p, fixed_action_logprobs_p, fixed_index_logprobs_p = [u.permute(x, perm_idx) for x in [all_states, all_actions, all_indices, all_returns, all_advantages, all_fixed_action_logprobs, all_fixed_index_logprobs]]
 
         # group everything by length
-        states_g, actions_g, indices_g, returns_g, advantages_g, fixed_action_logprobs_g, fixed_index_logprobs_g = map(
-            lambda x: u.group_by_indices(x, group_idx), [states_p, actions_p, indices_p, returns_p, advantages_p, fixed_action_logprobs_p, fixed_index_logprobs_p])
+        states_g, actions_g, indices_g, returns_g, advantages_g, fixed_action_logprobs_g, fixed_index_logprobs_g = [u.group_by_indices(x, group_idx) for x in [states_p, actions_p, indices_p, returns_p, advantages_p, fixed_action_logprobs_p, fixed_index_logprobs_p]]
         
         for j in range(optim_epochs):
 
@@ -387,7 +385,7 @@ class CRL_MultitaskSequenceAgent(nn.Module):
                 # for x in [states, actions, indices, returns, advantages, fixed_action_logprobs, fixed_index_logprobs]:
                     # assert not isinstance(x, torch.autograd.variable.Variable)
 
-                perm = np.random.permutation(range(states.shape[0]))
+                perm = np.random.permutation(list(range(states.shape[0])))
                 perm = u.cuda_if_needed(torch.LongTensor(perm), self.args)
 
                 states, actions, indices, returns, advantages, fixed_action_logprobs, fixed_index_logprobs = \
@@ -427,13 +425,13 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         group_idx, group_actions = u.group_by_element(sorted_actions)
 
         # permute everything by action type
-        states_ap, actions_ap, indices_ap = map(lambda x: u.permute(x, perm_idx), [states, actions, indices])
+        states_ap, actions_ap, indices_ap = [u.permute(x, perm_idx) for x in [states, actions, indices]]
 
         # group everything by action type
-        states_ag, actions_ag, indices_ag = map(lambda x: u.group_by_indices(x, group_idx), [states_ap, actions_ap, indices_ap])
+        states_ag, actions_ag, indices_ag = [u.group_by_indices(x, group_idx) for x in [states_ap, actions_ap, indices_ap]]
 
         action_logprobs, index_logprobs = [], []
-        for grp in xrange(len(group_idx)):
+        for grp in range(len(group_idx)):
             states_grp = torch.stack(states_ag[grp])  # (g, grp_length, indim)
             actions_grp = torch.LongTensor(np.stack(actions_ag[grp]))  # (g)
             indices_grp = torch.LongTensor(np.stack(indices_ag[grp]))  # (g)

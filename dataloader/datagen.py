@@ -9,7 +9,7 @@ import pprint
 from collections import OrderedDict
 
 from dataloader.arithmetic import Plus, Minus, Multiply, Divide
-import utils
+from . import utils
 import dataloader.datautils as du
 
 np.random.seed(0)
@@ -29,13 +29,13 @@ class ArithmeticDataGenerator(object):
                 (operator.sub, '-'),
                 (operator.div, '/')
             ])
-        self.reverse_static_operator_dict = {v:k for (k, v) in self.static_operator_dict.items()}
+        self.reverse_static_operator_dict = {v:k for (k, v) in list(self.static_operator_dict.items())}
         self.operator_dict = OrderedDict()  # this needs to be orderedict because of onehot
         for op in ops:
             if op in self.reverse_static_operator_dict:
                 self.operator_dict[self.reverse_static_operator_dict[op]] = op
-        self.operator_names = self.operator_dict.keys()
-        self.operators = self.operator_dict.values()
+        self.operator_names = list(self.operator_dict.keys())
+        self.operators = list(self.operator_dict.values())
 
         # Parameters
         self.range = numrange
@@ -70,7 +70,7 @@ class ArithmeticDataGenerator(object):
 
     def _extract_multiplicative_groups(self, ops):
         # find the indices of the ops
-        multiplicative_ops_indices = filter(lambda x: self.operator_dict[ops[x]] in '*/', range(len(ops)))
+        multiplicative_ops_indices = [x for x in range(len(ops)) if self.operator_dict[ops[x]] in '*/']
         multiplicative_groups = utils.group_consecutive(multiplicative_ops_indices)
         return multiplicative_groups
 
@@ -93,9 +93,9 @@ class ArithmeticDataGenerator(object):
         additive_terms = [du.sample_term_in_range(self.range)]
         additive_ops, additive_terms, exp_val = self._fold_left_ops_terms_sample(additive_ops, additive_terms)
         if self.verbose:
-            print 'Additive expression {} = {}'.format(
+            print('Additive expression {} = {}'.format(
                 du.build_expression_string(additive_terms, additive_ops, self.operator_dict),
-                exp_val)
+                exp_val))
         return additive_ops, additive_terms, exp_val
 
     def create_multiplicative_expression(self):
@@ -124,7 +124,7 @@ class ArithmeticDataGenerator(object):
                                     additive_term_to_multiplicative_group):
         all_terms = []
         all_ops = []
-        for j in xrange(len(additive_terms)):
+        for j in range(len(additive_terms)):
             if j in additive_term_to_multiplicative_group:
                 all_terms.extend(additive_term_to_multiplicative_group[j][1])
                 all_ops.extend(additive_term_to_multiplicative_group[j][0])
@@ -167,10 +167,10 @@ class ArithmeticDataGenerator(object):
             only positive integers
         """
         num_ops = max_terms - 1
-        ops = [self._sample_operator() for i in xrange(num_ops)]
+        ops = [self._sample_operator() for i in range(num_ops)]
 
         # focus on the additive_ops_first
-        additive_ops_indices = filter(lambda x: self.operator_dict[ops[x]] in '+-', range(len(ops)))
+        additive_ops_indices = [x for x in range(len(ops)) if self.operator_dict[ops[x]] in '+-']
         additive_ops, additive_terms, exp_val = self.get_additive_expression(ops, additive_ops_indices)
 
         # match a multiplicative expression for each additive term
@@ -181,7 +181,7 @@ class ArithmeticDataGenerator(object):
         # put everything together
         all_ops, all_terms = self.interleave_additive_multiplicative(additive_terms, additive_ops, additive_term_to_multiplicative_group)
         exp_str = du.build_expression_string(all_terms, all_ops, self.operator_dict)
-        if self.verbose: print 'Final Expression: {} = {}'.format(exp_str, exp_val)
+        if self.verbose: print('Final Expression: {} = {}'.format(exp_str, exp_val))
         return exp_str, exp_val, all_terms, all_ops
 
     def encode_problem(self, exp_str, exp_val, terms, ops):

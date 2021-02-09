@@ -21,7 +21,7 @@ def batch_compatible(transform):
             return transform(data)
         elif data.dim() == 4:
 
-            transformed = map(transform, data)
+            transformed = list(map(transform, data))
 
             if isinstance(transformed[0], Variable) or isinstance(transformed[0], torch.Tensor) or isinstance(transformed[0], torch.cuda.FloatTensor):
                 return torch.stack(transformed)

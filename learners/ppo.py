@@ -52,7 +52,7 @@ class PPO():
         prev_return = 0
         prev_value = 0
         prev_advantage = 0
-        for i in reversed(range(rewards.size(0))):
+        for i in reversed(list(range(rewards.size(0)))):
             returns[i] = rewards[i] + self.gamma * prev_return * masks[i]
             deltas[i] = rewards[i] + self.gamma * prev_value * masks[i] - values[i]
             advantages[i] = deltas[i] + self.gamma * self.tau * prev_advantage * masks[i]
@@ -70,7 +70,7 @@ class PPO():
         batch = self.replay_buffer.sample()
 
         states, actions, rewards, masks = self.unpack_ppo_batch(batch)  # none of these are Variables, so we are good        
-        states, actions, rewards, masks = map(lambda x: u.cuda_if_needed(x, args), (states, actions, rewards, masks))
+        states, actions, rewards, masks = [u.cuda_if_needed(x, args) for x in (states, actions, rewards, masks)]
 
         values = self.valuefn(Variable(states, volatile=True)).data  # (b, 1)
         fixed_log_probs = self.policy.get_log_prob(Variable(states, volatile=True), Variable(actions)).data  # (b)
@@ -79,7 +79,7 @@ class PPO():
 
         optim_iter_num = int(np.ceil(states.shape[0] / float(self.minibatch_size)))
         for j in range(self.optim_epochs):
-            perm = np.random.permutation(range(states.shape[0]))
+            perm = np.random.permutation(list(range(states.shape[0])))
             perm = u.cuda_if_needed(torch.LongTensor(perm), args)
 
             states, actions, returns, advantages, fixed_log_probs = \

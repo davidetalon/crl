@@ -1,5 +1,5 @@
 import os
-from utils import printf
+from .utils import printf
 
 def mkdirp(logdir):
     if not os.path.exists(logdir):
@@ -15,7 +15,7 @@ class DataLoader(object):
         if logger is None:
             assert args is None
             def printer(x):
-                print x
+                print(x)
         else:
             printer = lambda x: printf(logger, args, x)
         self.printer = printer

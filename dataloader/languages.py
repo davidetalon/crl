@@ -28,7 +28,7 @@ class Math_to_English(Math_to_Language):
             ("*", "times"),
             ("-", "minus"),
         ])
-        self.reverse_vocabulary = {v: k for k,v in self.vocabulary.iteritems()}
+        self.reverse_vocabulary = {v: k for k,v in self.vocabulary.items()}
 
 class Math_to_Spanish(Math_to_Language):
     def __init__(self):
@@ -47,7 +47,7 @@ class Math_to_Spanish(Math_to_Language):
             ("*", "por"),
             ("-", "menos"),
         ])
-        self.reverse_vocabulary = {v: k for k,v in self.vocabulary.iteritems()}
+        self.reverse_vocabulary = {v: k for k,v in self.vocabulary.items()}
 
 class Language_to_PigLatin(object):
     def __init__(self):
@@ -77,14 +77,14 @@ class English_to_PigLatin(Language_to_PigLatin):
     def __init__(self):
         super(English_to_PigLatin, self).__init__()
         self.vocabulary = OrderedDict()
-        for word in Math_to_English().vocabulary.values():
+        for word in list(Math_to_English().vocabulary.values()):
             self.vocabulary[word] = self.translate([word])[0]
 
 class Spanish_to_PigSpanish(Language_to_PigLatin):
     def __init__(self):
         super(Spanish_to_PigSpanish, self).__init__()
         self.vocabulary = OrderedDict()
-        for word in Math_to_Spanish().vocabulary.values():
+        for word in list(Math_to_Spanish().vocabulary.values()):
             self.vocabulary[word] = self.translate([word])[0]
 
 class Language_to_ReverseLanguage(object):
@@ -101,12 +101,12 @@ class English_to_ReverseEnglish(Language_to_ReverseLanguage):
     def __init__(self):
         super(English_to_ReverseEnglish, self).__init__()
         self.vocabulary = OrderedDict()
-        for word in Math_to_English().vocabulary.values():
+        for word in list(Math_to_English().vocabulary.values()):
             self.vocabulary[word] = self.translate([word])[0]
 
 class Spanish_to_ReverseSpanish(Language_to_ReverseLanguage):
     def __init__(self):
         super(Spanish_to_ReverseSpanish, self).__init__()
         self.vocabulary = OrderedDict()
-        for word in Math_to_Spanish().vocabulary.values():
+        for word in list(Math_to_Spanish().vocabulary.values()):
             self.vocabulary[word] = self.translate([word])[0]

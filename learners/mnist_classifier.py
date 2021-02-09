@@ -8,7 +8,7 @@ from networks.controllers import CNNPolicy, CNNValueFn
 from networks.encoders import Identity
 from networks.functions import AffineSTNTransformation, TranslateSTN, ScaleSTN, ConstrainedRotateSTN
 
-from centralized import MarkovAgent
+from .centralized import MarkovAgent
 
 from rb import Memory
 import utils as u
@@ -86,6 +86,6 @@ class CRL_ImageTransforms(MarkovAgent):
         return state, selected
 
     def process_selected(self, selected, last_state):
-        selected_actions, selected_states, selected_parameters = zip(*selected)
+        selected_actions, selected_states, selected_parameters = list(zip(*selected))
         selected_states = list(selected_states) + [last_state]
         return selected_states, selected_actions, selected_parameters

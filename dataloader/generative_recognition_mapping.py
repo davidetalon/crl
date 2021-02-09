@@ -42,7 +42,7 @@ class GR_Map_full(GR_Map):
         for i in scale_ids:
             self.generative_recognition_map[i] = stn_ids['scale']
 
-        for k, v in filter(lambda (k, v): 'translate' in k, stn_ids.iteritems()):
+        for k, v in [k_v for k_v in iter(stn_ids.items()) if 'translate' in k_v[0]]:
             self.generative_recognition_map[v+2] = stn_ids[k]
 
         for i in identity_ids:

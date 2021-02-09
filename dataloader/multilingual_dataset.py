@@ -4,8 +4,8 @@ import copy
 import re
 import itertools
 
-from languages import Math_to_English, Math_to_Spanish, English_to_PigLatin, Spanish_to_PigSpanish, English_to_ReverseEnglish, Spanish_to_ReverseSpanish
-from numerical_dataset import BaseArithmetic
+from .languages import Math_to_English, Math_to_Spanish, English_to_PigLatin, Spanish_to_PigSpanish, English_to_ReverseEnglish, Spanish_to_ReverseSpanish
+from .numerical_dataset import BaseArithmetic
 
 class ArithmeticLanguage(BaseArithmetic):
     def __init__(self, max_terms, num_range, ops, samplefrom, episodecap, root, curr, nlang):
@@ -60,12 +60,12 @@ class ArithmeticLanguage(BaseArithmetic):
         self.pairings['train'] = [p for p in self.language_pairings if p not in self.pairings['val'] + self.pairings['test']]
 
     def generate_all_possible_translations(self, numerical_p, numerical_a):
-        english_p, english_a = map(self.translators['math_to_english'].translate,
-            (numerical_p, numerical_a))
-        pig_p, pig_a = map(self.translators['english_to_piglatin'].translate,
-            (english_p, english_a))
-        reverseenglish_p, reverseenglish_a = map(self.translators['english_to_reverseenglish'].translate,
-            (english_p, english_a))
+        english_p, english_a = list(map(self.translators['math_to_english'].translate,
+            (numerical_p, numerical_a)))
+        pig_p, pig_a = list(map(self.translators['english_to_piglatin'].translate,
+            (english_p, english_a)))
+        reverseenglish_p, reverseenglish_a = list(map(self.translators['english_to_reverseenglish'].translate,
+            (english_p, english_a)))
 
         possible_problems = {
             'math': (numerical_p, numerical_a),
@@ -75,16 +75,16 @@ class ArithmeticLanguage(BaseArithmetic):
         }
 
         if self.nlang >= 5:
-            spanish_p, spanish_a = map(self.translators['math_to_spanish'].translate,
-                (numerical_p, numerical_a))
+            spanish_p, spanish_a = list(map(self.translators['math_to_spanish'].translate,
+                (numerical_p, numerical_a)))
             possible_problems['spanish'] = (spanish_p, spanish_a)
         if self.nlang >= 6:
-            pigspanish_p, pigspanish_a = map(self.translators['spanish_to_pigspanish'].translate,
-                (spanish_p, spanish_a))
+            pigspanish_p, pigspanish_a = list(map(self.translators['spanish_to_pigspanish'].translate,
+                (spanish_p, spanish_a)))
             possible_problems['pigspanish'] = (pigspanish_p, pigspanish_a)
         if self.nlang == 7:
-            reversespanish_p, reversespanish_a = map(self.translators['spanish_to_reversespanish'].translate,
-                (spanish_p, spanish_a))
+            reversespanish_p, reversespanish_a = list(map(self.translators['spanish_to_reversespanish'].translate,
+                (spanish_p, spanish_a)))
             possible_problems['reversespanish'] = (reversespanish_p, reversespanish_a)
         if self.nlang > 7: assert False
 
@@ -99,7 +99,7 @@ class ArithmeticLanguage(BaseArithmetic):
 
         # now sample languages
         pairing = self.pairings[mode][np.random.randint(len(self.pairings[mode]))]
-        source_language_id, target_language_id = map(self.languages.index, pairing)
+        source_language_id, target_language_id = list(map(self.languages.index, pairing))
 
         # create input output pair
         inp = possible_problems[self.languages[source_language_id]][0]
@@ -145,9 +145,9 @@ class ArithmeticLanguageWordEncoding(ArithmeticLanguageEncoding):
     def __init__(self, max_terms, num_range, ops, samplefrom, episodecap, root, curr, nlang):
         super(ArithmeticLanguageWordEncoding, self).__init__(max_terms, num_range, ops, samplefrom, episodecap, root, curr, nlang)
         # create vocabulary
-        self.vocabulary = self.translators['math_to_english'].vocabulary.keys()
-        for key, translator in self.translators.iteritems():
-            self.vocabulary.extend(translator.vocabulary.values())
+        self.vocabulary = list(self.translators['math_to_english'].vocabulary.keys())
+        for key, translator in self.translators.items():
+            self.vocabulary.extend(list(translator.vocabulary.values()))
         self.vocabulary.append('STAHP')
         self.vocabsize = len(self.vocabulary)
 
@@ -159,7 +159,7 @@ class ArithmeticLanguageWordEncoding(ArithmeticLanguageEncoding):
 
     def encode_tokens(self, tokens):
         """ assume input is a list """
-        return map(self.vocabulary.index, tokens)
+        return list(map(self.vocabulary.index, tokens))
 
     def decode_tokens(self, tokens):
         answer = ' '.join([self.vocabulary[t] for t in tokens])

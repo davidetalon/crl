@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Categorical
-from utils import cuda_if_needed, reverse, sample_from_categorical_dist, logprob_categorical_dist
+from dataloader.utils import cuda_if_needed, reverse, sample_from_categorical_dist, logprob_categorical_dist
 from torch.autograd import Variable
 
-from encoders import CNN64fc_8
+from .encoders import CNN64fc_8
 
 class BasePolicy(nn.Module):
     def __init__(self):

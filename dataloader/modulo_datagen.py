@@ -33,20 +33,20 @@ class ModuloDataGenerator(ArithmeticDataGenerator):
 
     def create_problem(self, max_terms):
         num_ops = max_terms - 1
-        ops = [self._sample_operator() for i in xrange(num_ops)]
+        ops = [self._sample_operator() for i in range(num_ops)]
         terms = [du.sample_term_in_range(self.range)]
-        for i in xrange(num_ops):
+        for i in range(num_ops):
             terms.append(self.sample_next_term(ops[i], terms[i-1]))
         exp_val = self.evaluate_expression(terms, ops)
         exp_str = du.build_expression_string(terms, ops, self.operator_dict)
-        if self.verbose: print('Final Expression: {} = {}'.format(exp_str, exp_val))
+        if self.verbose: print(('Final Expression: {} = {}'.format(exp_str, exp_val)))
         return exp_str, exp_val, terms, ops
 
     def evaluate_expression(self, terms, ops):
         terms = copy.deepcopy(terms)
         ops = copy.deepcopy(ops)
         # first find all the ops that are * and /
-        multiplicative_ops_indices = filter(lambda x: self.operator_dict[ops[x]] in '*/', range(len(ops)))
+        multiplicative_ops_indices = [x for x in range(len(ops)) if self.operator_dict[ops[x]] in '*/']
 
         while len(multiplicative_ops_indices) > 0:
             # evaluate multiplication
@@ -57,7 +57,7 @@ class ModuloDataGenerator(ArithmeticDataGenerator):
             ops = ops[:multiplicative_op_index] + ops[multiplicative_op_index+1:]
             terms = terms[:multiplicative_op_index] + [multiplicative_val] + terms[multiplicative_op_index+2:]
             # check if there are more multiplicative terms
-            multiplicative_ops_indices = filter(lambda x: self.operator_dict[ops[x]] in '*/', range(len(ops)))
+            multiplicative_ops_indices = [x for x in range(len(ops)) if self.operator_dict[ops[x]] in '*/']
 
         # at this point there are no multiplicative ops
         result = self._fold_left_ops_terms_eval(ops, terms)[-1] % self.modulus
@@ -69,7 +69,7 @@ def test_generate_data():
         print('\n*******')
         exp_str, exp_val, all_terms, all_ops =  dg.create_problem(3)
         assert exp_val == dg.evaluate_expression(all_terms, all_ops)
-        print('{}={}'.format(exp_str, exp_val))
+        print(('{}={}'.format(exp_str, exp_val)))
 
 if __name__ == '__main__':
     test_generate_data()

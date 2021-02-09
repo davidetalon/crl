@@ -27,10 +27,10 @@ class Memory(object):
 
     def sample(self, batch_size=None):
         if batch_size is None:
-            return self.element(*zip(*self.memory))
+            return self.element(*list(zip(*self.memory)))
         else:
             random_batch = random.sample(self.memory, batch_size)
-            return self.element(*zip(*random_batch))
+            return self.element(*list(zip(*random_batch)))
 
     def append(self, new_memory):
         self.memory += new_memory.memory

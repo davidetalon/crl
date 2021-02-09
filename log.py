@@ -2,7 +2,7 @@ import os
 import pickle
 import torch
 import copy
-from utils import printf
+from dataloader.utils import printf
 
 import numpy as np
 import matplotlib
@@ -21,7 +21,7 @@ def mkdirp(logdir):
 
 def barplot(height, labels, fname):
     N = len(height)
-    x = np.array(range(N))
+    x = np.array(list(range(N)))
     plt.bar(x=x, height=height, align='center')
     plt.xticks(x, labels, rotation='vertical')
     plt.gca().margins(x=0)
@@ -184,7 +184,7 @@ class Logger(object):
 
     def to_cpu(self, state_dict):
         cpu_dict = {}
-        for k,v in state_dict.iteritems():
+        for k,v in list(state_dict.items()):
             cpu_dict[k] = v.cpu()
         return cpu_dict
 
@@ -195,7 +195,7 @@ class Logger(object):
                 # 'model': {k: v.state_dict() for k,v in agent.model.iteritems()},
                 # 'optimizer': {k: v.state_dict() for k,v in agent.optimizer.iteritems()},
 
-            'model': {k: self.to_cpu(v) for k,v in ckpt['model'].iteritems()},
+            'model': {k: self.to_cpu(v) for k,v in list(ckpt['model'].items())},
             'episode': ckpt['episode'],
             'running_reward': ckpt['running_reward'],
             'logger_data': ckpt['logger_data'],
@@ -215,7 +215,7 @@ class Logger(object):
         self.data = pickle.load(open(os.path.join(self.logdir,'{}.p'.format(name)), 'rb'))
 
     def visualize_transformations(self, fname, selected_states, selected_actions, visualize=False):
-        states_np = map(lambda x: x[0], map(convert_image_np, map(lambda x: x.cpu(), selected_states)))
+        states_np = [x[0] for x in list(map(convert_image_np, [x.cpu() for x in selected_states]))]
         f, ax = plt.subplots(1, len(states_np))
         for i in range(len(states_np)):
             ax[i].imshow(states_np[i])
@@ -297,10 +297,10 @@ class AccuracyTracker(object):
 
     def print_stats(self, mode, subvocabsize):
         for i in range(subvocabsize):
-            print('{} {}: {}/{} ({:.2f}%)'.format(mode, i,
+            print(('{} {}: {}/{} ({:.2f}%)'.format(mode, i,
                 self.get_correct(i),
                 self.get_total(i),
-                self.get_accuracy(i)))
+                self.get_accuracy(i))))
 
 
 class RunningAverage(object):
@@ -325,14 +325,14 @@ class RunningAverage(object):
 def visualize_parameters(model):
     for n, p in model.named_parameters():
         if p.grad is None:
-            print n, p.data.norm(), None
+            print((n, p.data.norm(), None))
         else:
-            print n, p.data.norm(), p.grad.data.norm()
+            print((n, p.data.norm(), p.grad.data.norm()))
 
 def count_params(model):
-    print 'Total Paramters {}'.format(
-        sum(p.numel() for p in model.parameters()))
-    print 'Trainable Parameters {}'.format(
-        sum(p.numel() for p in model.parameters() if p.requires_grad))
+    print(('Total Paramters {}'.format(
+        sum(p.numel() for p in model.parameters()))))
+    print(('Trainable Parameters {}'.format(
+        sum(p.numel() for p in model.parameters() if p.requires_grad))))
 
 

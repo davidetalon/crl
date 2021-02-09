@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 from compute_supervision.cmdp_compute_supervision import compute_loss, compute_reward
-import utils as u
+import dataloader.utils as u
 import dataloader.datautils as du
 
 def sample_data(episode_sampler, create_batch, bsize, agent, env, args, mode):

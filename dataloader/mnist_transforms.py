@@ -10,24 +10,24 @@ from torchvision import datasets, transforms
 import torchsample
 from tqdm import tqdm
 
-from base_dataloader import DataLoader
-from image_transforms import *
-from transformation_combination import TransformationCombiner
-from generative_recognition_mapping import GR_Map_full 
+from .base_dataloader import DataLoader
+from .image_transforms import *
+from .transformation_combination import TransformationCombiner
+from .generative_recognition_mapping import GR_Map_full 
 
 torch.manual_seed(0)
 np.random.seed(0)
 
 def shrink_mnist_dataset(mnist_orig, bkgd_dim):
     mnist_shrunk = {}
-    for k in mnist_orig.keys():
+    for k in list(mnist_orig.keys()):
         v_data, v_labels = mnist_orig[k]
         mnist_shrunk[k] = (place_subimage_in_background(bkgd_dim)(v_data), 
             v_labels)
     return mnist_shrunk
 
 def cuda_mnist_dataset(mnist_dataset):
-    for key in mnist_dataset.keys():
+    for key in list(mnist_dataset.keys()):
         inputs = mnist_dataset[key][0]
         targets = mnist_dataset[key][1]
         mnist_dataset[key] = (inputs.cuda(), targets.cuda())
@@ -147,7 +147,7 @@ class BasicDataLoader(torch.utils.data.TensorDataset):
         return self.inputs.size()
 
     def permute(self):
-        perm = torch.LongTensor(np.random.permutation(range(len(self.inputs))))
+        perm = torch.LongTensor(np.random.permutation(list(range(len(self.inputs)))))
         if self.inputs.is_cuda:
             perm = perm.cuda()
         self.inputs = self.inputs[perm]

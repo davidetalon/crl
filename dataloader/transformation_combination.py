@@ -6,7 +6,7 @@ import numpy as np
 import pprint
 import torch
 
-from image_transforms import Rotate, Scale, Translate, Identity, CurriculumRotate, CurriculumScale, CurriculumTranslate, CurriculumIdentity
+from .image_transforms import Rotate, Scale, Translate, Identity, CurriculumRotate, CurriculumScale, CurriculumTranslate, CurriculumIdentity
 
 xform = namedtuple('Transformation', ('function', 'name', 'id'))
 

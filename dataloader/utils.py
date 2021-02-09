@@ -34,8 +34,8 @@ def inrange(value, interval):
 
 def group_consecutive(list_of_numbers):
     groups = []
-    for k, g in groupby(enumerate(list_of_numbers), lambda (i, x): i-x):
-        mg = map(itemgetter(1), g)
+    for k, g in groupby(enumerate(list_of_numbers), lambda i_x: i_x[0]-i_x[1]):
+        mg = list(map(itemgetter(1), g))
         groups.append(tuple(mg))
     return groups
 
@@ -55,7 +55,7 @@ def group_by_element(list_of_numbers):
     """
     vals = [list(v) for k,v in groupby(list_of_numbers)]
     idx = []
-    a = range(len(list_of_numbers))
+    a = list(range(len(list_of_numbers)))
     i = 0
     for sublist in vals:
         j = i + len(sublist)
@@ -71,7 +71,7 @@ def group_by_indices(list_of_numbers, idx_groupings):
     return [[list_of_numbers[i] for i in g] for g in idx_groupings]
 
 def invert_permutation(indices):
-    return [i for i, j in sorted(enumerate(indices), key=lambda (_, j): j)]
+    return [i for i, j in sorted(enumerate(indices), key=lambda __j: __j[1])]
 
 def sort_group_perm(lengths):
     perm_idx, sorted_lengths = sort_decr(lengths)
@@ -80,7 +80,7 @@ def sort_group_perm(lengths):
     return perm_idx, group_idx, inverse_perm_idx
 
 def sort_decr(lengths):
-    perm_idx, sorted_lengths = zip(*[(c, d) for c, d in sorted(enumerate(lengths), key=lambda x: x[1], reverse=True)])
+    perm_idx, sorted_lengths = list(zip(*[(c, d) for c, d in sorted(enumerate(lengths), key=lambda x: x[1], reverse=True)]))
     return perm_idx, sorted_lengths
 
 def var_length_in_batch_wrapper(fn, inputs, inputs_xform, input_to_group_by, args):
@@ -99,12 +99,12 @@ def var_length_in_batch_wrapper(fn, inputs, inputs_xform, input_to_group_by, arg
     # sort by length
     lengths = [len(e) for e in input_to_group_by]
     perm_idx, sorted_lengths = sort_decr(lengths)
-    inputs_p = map(lambda x: permute(x, perm_idx), inputs)
+    inputs_p = [permute(x, perm_idx) for x in inputs]
     # group by sorted length
     group_idx, group_lengths = group_by_element(sorted_lengths)
-    inputs_grp = map(lambda x: group_by_indices(x, group_idx), inputs_p)
+    inputs_grp = [group_by_indices(x, group_idx) for x in inputs_p]
     # convert every group in inputs_grp to torch tensor 
-    inputs_grp_th = map(lambda (f, y): map(f, y), zip(inputs_xform, inputs_grp))
+    inputs_grp_th = [list(map(f_y[0], f_y[1])) for f_y in zip(inputs_xform, inputs_grp)]
     def execute_fn_on_grouped_inputs(fn, grouped_inputs):
         outputs = []
         for inp in zip(*grouped_inputs):
@@ -141,12 +141,12 @@ def var_length_var_dim_in_batch_wrapper(fn, inputs, inputs_xform, input_to_group
     # sort by length
     lengths = [len(e) for e in input_to_group_by]
     perm_idx, sorted_lengths = sort_decr(lengths)
-    inputs_p = map(lambda x: permute(x, perm_idx), inputs)
+    inputs_p = [permute(x, perm_idx) for x in inputs]
     # group by sorted length
     group_idx, group_lengths = group_by_element(sorted_lengths)
-    inputs_grp = map(lambda x: group_by_indices(x, group_idx), inputs_p)
+    inputs_grp = [group_by_indices(x, group_idx) for x in inputs_p]
     # convert every group in inputs_grp to torch tensor 
-    inputs_grp_th = map(lambda (f, y): map(f, y), zip(inputs_xform, inputs_grp))
+    inputs_grp_th = [list(map(f_y1[0], f_y1[1])) for f_y1 in zip(inputs_xform, inputs_grp)]
     def execute_fn_on_grouped_inputs(fn, grouped_inputs):
         outputs = []
         for inp in zip(*grouped_inputs):

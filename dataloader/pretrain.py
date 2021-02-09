@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from multilingual_dataset import ArithmeticLanguageWordEncoding, ArithmeticLanguageTranslation
+from .multilingual_dataset import ArithmeticLanguageWordEncoding, ArithmeticLanguageTranslation
 
 class PreTrainDataset(object):
     def __init__(self, max_terms, num_range, ops, samplefrom, episodecap, root, nlang):
@@ -33,17 +33,17 @@ class PreTrainDataset(object):
         self.current_exp_strs = []
 
     def initialize_data(self, splits):
-        map(lambda x: x.initialize_data(splits), self.datasets)
+        list(map(lambda x: x.initialize_data(splits), self.datasets))
 
     def initialize_printer(self, logger, args):
-        map(lambda x: x.initialize_printer(logger, args), self.datasets)
+        list(map(lambda x: x.initialize_printer(logger, args), self.datasets))
 
     def create_datasets(self, envbuilder, pairs, nlang):
         datasets = []
         # add translator dataset encoder-decoder
         print('ADDING TRANSLATOR DATASETS')
         for pair in pairs:
-            print('PAIR', pair)
+            print(('PAIR', pair))
             datasets.append(envbuilder(m=[2,2,2], c=False, p=pair))
         # add reducer dataset
         print('ADDING REDUCER DATASETS')
@@ -140,10 +140,10 @@ class Pretrain_Multilingual_Dataset(object):
         self.current_exp_strs = []
 
     def initialize_data(self, splits):
-        map(lambda x: x.initialize_data(splits), self.datasets)
+        list(map(lambda x: x.initialize_data(splits), self.datasets))
 
     def initialize_printer(self, logger, args):
-        map(lambda x: x.initialize_printer(logger, args), self.datasets)
+        list(map(lambda x: x.initialize_printer(logger, args), self.datasets))
 
     def change_dataset(self):
         self.d_index = np.random.randint(len(self.datasets))

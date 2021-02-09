@@ -27,7 +27,7 @@ any existing CNN with very little modification.
 # License: BSD
 # Author: Ghassen Hamrouni
 
-from __future__ import print_function
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -38,7 +38,7 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
 import torchsample
-from image_transforms import *
+from .image_transforms import *
 
 ######################################################################
 # Loading the data

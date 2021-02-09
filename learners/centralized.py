@@ -8,7 +8,7 @@ import pprint
 
 from rb import Memory
 import utils as u
-from ppo import PPO
+from .ppo import PPO
 
 
 class BaseAgent(nn.Module):

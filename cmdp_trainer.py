@@ -13,7 +13,7 @@ import dataloader.datautils as du
 from dataloader.numerical_dataset import BaseArithmetic
 from load_pretrained import handle_resume
 from log import visualize_parameters, RunningAverage
-from utils import cuda_if_needed, printf
+from dataloader.utils import cuda_if_needed, printf
 from trainer import initialize_logger, to_cpu, base_eval, base_plot
 
 def create_lang_batch(env, bsize, mode, args):
@@ -42,8 +42,7 @@ def create_lang_batch(env, bsize, mode, args):
 
     targets = torch.LongTensor(targets)  # (b, 1)
 
-    enc_inps, target_tokens, zs, targets = map(lambda x: cuda_if_needed(x, args), 
-        (enc_inps, target_tokens, zs, targets))
+    enc_inps, target_tokens, zs, targets = [cuda_if_needed(x, args) for x in (enc_inps, target_tokens, zs, targets)]
 
     targets = Variable(targets, volatile=volatile)
 
@@ -236,8 +235,8 @@ def train(data_sampler, episode_sampler, agent, logger, env, args):
                 'running_accuracy': running_accuracy}
 
             ckpt = {
-                'model': {k: to_cpu(v.state_dict()) for k,v in agent.model.iteritems()},
-                'optimizer': {k: v.state_dict() for k,v in agent.optimizer.iteritems()},
+                'model': {k: to_cpu(v.state_dict()) for k,v in list(agent.model.items())},
+                'optimizer': {k: v.state_dict() for k,v in list(agent.optimizer.items())},
                 'episode': i_episode,
                 'running_loss': running_loss,
                 'running_moves': running_moves,

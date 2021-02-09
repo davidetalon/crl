@@ -219,8 +219,8 @@ def train(data_sampler, episode_sampler, agent, logger, env, args):
                 'running_loss': running_loss, 
                 'running_accuracy': running_accuracy}
             ckpt = {
-                'model': {k: to_cpu(v.state_dict()) for k,v in agent.model.iteritems()},
-                'optimizer': {k: v.state_dict() for k,v in agent.optimizer.iteritems()},
+                'model': {k: to_cpu(v.state_dict()) for k,v in list(agent.model.items())},
+                'optimizer': {k: v.state_dict() for k,v in list(agent.optimizer.items())},
                 'episode': i_episode,
                 'running_loss': running_loss,
                 'running_moves': running_moves,
