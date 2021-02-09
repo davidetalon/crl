@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 import regex as re
 
-import dataloader.datautils as du
+from . import datautils as du
 
 
 class Operator(object):
@@ -32,7 +32,7 @@ class AttentionOperator(Operator):
             (operator.add, '+'),
             (operator.mul, '*'),
             (operator.sub, '-'),
-            (operator.div, '/')
+            (operator.truediv, '/')
         ])
 
     def evaluate_subexp(self, x, idx=-1):

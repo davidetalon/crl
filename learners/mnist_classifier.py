@@ -11,7 +11,7 @@ from networks.functions import AffineSTNTransformation, TranslateSTN, ScaleSTN, 
 from .centralized import MarkovAgent
 
 from rb import Memory
-import utils as u
+import dataloader.utils as u
 import pprint
 
 class CRL_ImageTransforms(MarkovAgent):

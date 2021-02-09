@@ -13,7 +13,7 @@ import itertools
 from itertools import count
 from load_pretrained import handle_resume
 from log import RunningAverage, visualize_parameters
-from utils import cuda_if_needed, printf
+from dataloader.utils import cuda_if_needed, printf
 
 from trainer import initialize_logger, to_cpu, base_eval, base_plot
 

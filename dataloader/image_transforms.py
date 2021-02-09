@@ -356,8 +356,8 @@ def place_subimage_in_background(bkdg_dim, rand=False):
             top = np.random.randint(0, from_top_limit)
             left = np.random.randint(0, from_left_limit)
         else:
-            top = from_top_limit/2
-            left = from_left_limit/2
+            top = from_top_limit//2
+            left = from_left_limit//2
         # place subimage inside background
         bkgd[:, top:top+subimage_height, left:left+subimage_width] += subimage
         return bkgd

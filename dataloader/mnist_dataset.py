@@ -55,7 +55,7 @@ def load_mnist_datasets(root, normalize=True, extrap=False):
 
     # now you should divide into groups
 
-    numtest = len(valtest_dataset) / 2
+    numtest = len(valtest_dataset) // 2
     valtest_data, valtest_labels = list(zip(*valtest_dataset))
     valtest_data = torch.stack(valtest_data)
     valtest_labels = torch.LongTensor(valtest_labels).unsqueeze(1)

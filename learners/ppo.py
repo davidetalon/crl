@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-import utils as u
+import dataloader.utils as u
 
 class PPO():
     def __init__(self, policy, policy_optimizer, valuefn, value_optimizer, replay_buffer, gamma, optim_epochs=5, minibatch_size=64, value_iters=1, clip_epsilon=0.1, lr_mult=1, tau=0.95, l2_reg=1e-3, entropy_coeff=1e-4):

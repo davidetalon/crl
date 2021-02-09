@@ -27,7 +27,7 @@ class ArithmeticDataGenerator(object):
                 (operator.add, '+'),
                 (operator.mul, '*'),
                 (operator.sub, '-'),
-                (operator.div, '/')
+                (operator.truediv, '/')
             ])
         self.reverse_static_operator_dict = {v:k for (k, v) in list(self.static_operator_dict.items())}
         self.operator_dict = OrderedDict()  # this needs to be orderedict because of onehot
