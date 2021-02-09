@@ -5,14 +5,13 @@ from torch.autograd import Variable
 from torch.distributions import Categorical
 
 
-
 def printf(logger, args, string):
     if args.printf:
-        f = open(logger.logdir+'.txt', 'a')
-        print >>f, string
+        # print(>>f, string)
+        with open(logger.logdir+'.txt', 'a') as f:
+            print(string, file=f)
     else:
-        print string
-
+        print(string)
 
 def create_exp_string(args, relevant_arg_names, prefix, suffix):
     string = prefix + '_'

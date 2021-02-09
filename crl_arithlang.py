@@ -192,7 +192,7 @@ def main():
     expname = build_expname(args)
 
     main_method = ct.eval if args.eval else ct.train
-    args.memory = False
+    args.memory = False     # todo: whether to retain graph
     logdir = expname
     logger = Logger(expname=logdir, logdir=os.path.join(args.outputdir, logdir), params=args)
     agent = CRL_MultitaskSequenceAgent(

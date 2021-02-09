@@ -1,16 +1,16 @@
-import torch
-from torchvision import datasets, transforms
-from collections import OrderedDict
-import numpy as np
 import copy
 import os
 import re
+from collections import OrderedDict
 
-from arithmetic import Plus, Minus, Multiply, Divide
-import datautils as du
+import numpy as np
 from tqdm import tqdm
-from modulo_datagen import ModuloDataGenerator
+
+import dataloader.datautils as du
+from dataloader.arithmetic import Plus, Minus, Multiply, Divide
+from dataloader.modulo_datagen import ModuloDataGenerator
 from utils import printf
+
 
 def mkdirp(logdir):
     if not os.path.exists(logdir):

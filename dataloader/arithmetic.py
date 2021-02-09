@@ -1,8 +1,10 @@
 import operator
-import regex as re
 from collections import OrderedDict
-import datautils as du
-import numpy as np
+
+import regex as re
+
+import dataloader.datautils as du
+
 
 class Operator(object):
     def __init__(self):

@@ -9,11 +9,11 @@ import copy
 
 from collections import OrderedDict
 
-from arithmetic import Plus, Minus, Multiply
-import utils
-import datautils as du
+from dataloader.arithmetic import Plus, Minus, Multiply
+import dataloader.utils
+import dataloader.datautils as du
 
-from datagen import ArithmeticDataGenerator
+from dataloader.datagen import ArithmeticDataGenerator
 
 np.random.seed(0)
 
@@ -39,7 +39,7 @@ class ModuloDataGenerator(ArithmeticDataGenerator):
             terms.append(self.sample_next_term(ops[i], terms[i-1]))
         exp_val = self.evaluate_expression(terms, ops)
         exp_str = du.build_expression_string(terms, ops, self.operator_dict)
-        if self.verbose: print 'Final Expression: {} = {}'.format(exp_str, exp_val)
+        if self.verbose: print('Final Expression: {} = {}'.format(exp_str, exp_val))
         return exp_str, exp_val, terms, ops
 
     def evaluate_expression(self, terms, ops):
@@ -66,10 +66,10 @@ class ModuloDataGenerator(ArithmeticDataGenerator):
 def test_generate_data():
     dg = ModuloDataGenerator('+-*', [0,100])
     for i in range(1000):
-        print '\n*******'
+        print('\n*******')
         exp_str, exp_val, all_terms, all_ops =  dg.create_problem(3)
         assert exp_val == dg.evaluate_expression(all_terms, all_ops)
-        print '{}={}'.format(exp_str, exp_val)
+        print('{}={}'.format(exp_str, exp_val))
 
 if __name__ == '__main__':
     test_generate_data()

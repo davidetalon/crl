@@ -8,9 +8,9 @@ import pprint
 
 from collections import OrderedDict
 
-from arithmetic import Plus, Minus, Multiply, Divide
+from dataloader.arithmetic import Plus, Minus, Multiply, Divide
 import utils
-import datautils as du
+import dataloader.datautils as du
 
 np.random.seed(0)
 
