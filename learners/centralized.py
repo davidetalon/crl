@@ -88,7 +88,8 @@ class BaseAgent(nn.Module):
     def improve_actions(self, retain_graph=False):
         batch = self.computation_buffer.sample()
         loss = list(batch.loss)  # these are all the same
-        loss = loss[0] if len(loss) == 1 else torch.mean(torch.cat(loss))  # these are all the same
+        # torch.cat doesn't work with one dimension after a pytorch version change
+        loss = loss[0] if len(loss) == 1 else torch.mean(torch.stack(loss))  # these are all the same
         if loss.requires_grad:
             self.computation_optimizer.zero_grad()
             loss.backward(retain_graph=retain_graph)

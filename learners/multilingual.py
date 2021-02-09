@@ -122,7 +122,12 @@ class CRL_MultitaskSequenceAgent(nn.Module):
 
     def get_substate_boundaries(self, indices, opidx):
         assert indices.sum() == indices.numel() - 2  # indices should be all ones except 0s at the end
-        selected_idx = torch.squeeze(indices).nonzero().squeeze()[opidx]
+        mutated = torch.squeeze(indices).nonzero().squeeze()
+        if len(mutated.shape) == 0:
+            selected_idx = mutated.item()
+        else:
+            # original
+            selected_idx = torch.squeeze(indices).nonzero().squeeze()[opidx]
         indices_list = list(torch.squeeze(indices).cpu().numpy())
 
         # find boundaries. You should be guaranteed that there are terms
@@ -155,8 +160,9 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         return substate
 
     def update_state(self, state, substate_boundaries, substate_transformation, args):
-        assert isinstance(state, torch.autograd.variable.Variable)
-        assert isinstance(substate_transformation, torch.autograd.variable.Variable)
+	    # todo these are torch.tensors; need to fix
+        # assert isinstance(state, torch.autograd.variable.Variable)
+        # assert isinstance(substate_transformation, torch.autograd.variable.Variable)
         begin, selected_idx, end = substate_boundaries
 
         # NOTE: the substate_transformation is not one hot!!!
@@ -199,7 +205,8 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         while True: # Can potentially infinite loop. Hopefully the agent realizes it should terminate.
             policy_in = policy_in_encoder(state)
             action, secondary_action, action_logprob, secondary_log_prob, value, choice_dist_info = self.run_policy(policy_in)
-            a, sa = action[0], secondary_action[0]
+            # a, sa = action[0], secondary_action[0]
+            a, sa = action.item(), secondary_action.item()
             if a == 2:  # STOP
                 if state.size(1) > 1:
                     done = False
@@ -253,7 +260,8 @@ class CRL_MultitaskSequenceAgent(nn.Module):
     def improve_actions(self, retain_graph=False):
         batch = self.computation_buffer.sample()
         loss = list(batch.loss)
-        loss = loss[0] if len(loss) == 1 else torch.mean(torch.cat(loss))
+        # loss = loss[0] if len(loss) == 1 else torch.mean(torch.cat(loss))
+        loss = loss[0] if len(loss) == 1 else torch.mean(torch.stack(loss))  # these are all the same
         if loss.requires_grad:
             self.computation_optimizer.zero_grad()
             loss.backward(retain_graph=retain_graph)
@@ -307,7 +315,8 @@ class CRL_MultitaskSequenceAgent(nn.Module):
         actions, secondary_actions = zip(*batch.action)
         action_logprobs, secondary_log_probs = zip(*batch.logprob)
         action_logprobs = torch.cat(action_logprobs).data  # FloatTensor (B)
-        secondary_log_probs = torch.cat(secondary_log_probs).data  # FloatTensor (B)
+        # todo: was cat not stack/ also had to squeeze
+        secondary_log_probs = torch.stack([torch.squeeze(s) for s in secondary_log_probs]).data  # FloatTensor (B)
         values = torch.cat(batch.value).data  # FloatTensor (B, 1)
         rewards = u.cuda_if_needed(torch.from_numpy(np.stack(batch.reward)).float(), self.args)  # FloatTensor (b)
         masks = u.cuda_if_needed(torch.from_numpy(np.stack(batch.mask)).float(), self.args)  # FloatTensor (b)
@@ -366,14 +375,17 @@ class CRL_MultitaskSequenceAgent(nn.Module):
             for grp in range(len(group_idx)):
                 states = torch.cat(states_g[grp], dim=0)  # FloatTensor (g, grp_length, indim)
                 actions = torch.cat(actions_g[grp])  # LongTensor (g)
-                indices = torch.cat(indices_g[grp])  # LongTensor (g)
+                # some of these tensors in the list have length 0
+                # indices = torch.cat(indices_g[grp])  # LongTensor (g)
+                indices = torch.stack([torch.squeeze(i) for i in indices_g[grp]])
                 returns = torch.cat(returns_g[grp])  # FloatTensor (g)
                 advantages = torch.cat(advantages_g[grp])  # FloatTensor (g)
                 fixed_action_logprobs = u.cuda_if_needed(torch.FloatTensor(fixed_action_logprobs_g[grp]), self.args)  # FloatTensor (g)
                 fixed_index_logprobs = u.cuda_if_needed(torch.FloatTensor(fixed_index_logprobs_g[grp]), self.args)  # FloatTensor (g)
 
-                for x in [states, actions, indices, returns, advantages, fixed_action_logprobs, fixed_index_logprobs]:
-                    assert not isinstance(x, torch.autograd.variable.Variable)
+                # these are torch.tensors? todo
+                # for x in [states, actions, indices, returns, advantages, fixed_action_logprobs, fixed_index_logprobs]:
+                    # assert not isinstance(x, torch.autograd.variable.Variable)
 
                 perm = np.random.permutation(range(states.shape[0]))
                 perm = u.cuda_if_needed(torch.LongTensor(perm), self.args)
@@ -434,6 +446,8 @@ class CRL_MultitaskSequenceAgent(nn.Module):
             action_logprobs.append(alp)
             index_logprobs.append(ilp)
 
+        # action_logprobs = torch.cat(action_logprobs)
+        action_logprobs = [torch.unsqueeze(a, dim=0) if len(a.shape) == 0 else a for a in action_logprobs]
         action_logprobs = torch.cat(action_logprobs)
         index_logprobs = torch.cat(index_logprobs)
 
