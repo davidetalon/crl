@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from dataloader.image_transforms import convert_image_np
 
 def mkdirp(logdir):
+    print(logdir)
     if '_debug' in logdir:
         # overwrite
         if not os.path.exists(logdir):
@@ -215,7 +216,7 @@ class Logger(object):
         self.data = pickle.load(open(os.path.join(self.logdir,'{}.p'.format(name)), 'rb'))
 
     def visualize_transformations(self, fname, selected_states, selected_actions, visualize=False):
-        states_np = map(lambda x: x[0], map(convert_image_np, map(lambda x: x.cpu(), selected_states)))
+        states_np = list(map(lambda x: x[0], map(convert_image_np, map(lambda x: x.cpu(), selected_states))))
         f, ax = plt.subplots(1, len(states_np))
         for i in range(len(states_np)):
             ax[i].imshow(states_np[i])
@@ -325,14 +326,14 @@ class RunningAverage(object):
 def visualize_parameters(model):
     for n, p in model.named_parameters():
         if p.grad is None:
-            print n, p.data.norm(), None
+            print (n, p.data.norm(), None)
         else:
-            print n, p.data.norm(), p.grad.data.norm()
+            print (n, p.data.norm(), p.grad.data.norm())
 
 def count_params(model):
-    print 'Total Paramters {}'.format(
-        sum(p.numel() for p in model.parameters()))
-    print 'Trainable Parameters {}'.format(
-        sum(p.numel() for p in model.parameters() if p.requires_grad))
+    print ('Total Paramters {}'.format(
+        sum(p.numel() for p in model.parameters())))
+    print ('Trainable Parameters {}'.format(
+        sum(p.numel() for p in model.parameters() if p.requires_grad)))
 
 

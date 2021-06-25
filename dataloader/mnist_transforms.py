@@ -10,10 +10,10 @@ from torchvision import datasets, transforms
 import torchsample
 from tqdm import tqdm
 
-from base_dataloader import DataLoader
-from image_transforms import *
-from transformation_combination import TransformationCombiner
-from generative_recognition_mapping import GR_Map_full 
+from dataloader.base_dataloader import DataLoader
+from dataloader.image_transforms import *
+from dataloader.transformation_combination import TransformationCombiner
+from dataloader.generative_recognition_mapping import GR_Map_full 
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -30,7 +30,7 @@ def cuda_mnist_dataset(mnist_dataset):
     for key in mnist_dataset.keys():
         inputs = mnist_dataset[key][0]
         targets = mnist_dataset[key][1]
-        mnist_dataset[key] = (inputs.cuda(), targets.cuda())
+        mnist_dataset[key] = (inputs, targets)
     return mnist_dataset
 
 class BaseImageTransformDataLoader(DataLoader):
@@ -186,6 +186,7 @@ class BasicTransformDataLoader(BasicDataLoader):
         xform_combo, combo_info = self.transformation_combination.sample()
         self.set_xform_combo_info(combo_info)
         # compose the transformations
+        # inputs = inputs.cuda()
         inputs = transforms.Compose(xform_combo)(inputs)
         return inputs, targets
 

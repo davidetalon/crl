@@ -8,7 +8,7 @@ from networks.controllers import CNNPolicy, CNNValueFn
 from networks.encoders import Identity
 from networks.functions import AffineSTNTransformation, TranslateSTN, ScaleSTN, ConstrainedRotateSTN
 
-from centralized import MarkovAgent
+from learners.centralized import MarkovAgent
 
 from rb import Memory
 import utils as u

@@ -48,7 +48,7 @@ def handle_resume(agent, args):
             agent.initialize_optimizers(args)
             agent.initialize_optimizer_schedulers(args)
             if args.cuda:
-                print 'CUDA'
+                print ('CUDA')
                 agent.cuda()
                 agent.decoder.cuda()
                 agent.actions.cuda()
@@ -58,13 +58,13 @@ def handle_resume(agent, args):
             pass
         elif args.model == 'crl_image':
             if args.pretrain_decoder:
-                print 'PRETRAIN DECODER'
+                print ('PRETRAIN DECODER')
                 ckpt = torch.load('pretrained_models/pretrained_mnist_classifier.pth.tar')
                 agent.decoder.load_state_dict(ckpt['model'])
                 if args.cuda:
-                    print 'CUDA'
+                    print ('CUDA')
                     agent.decoder.cuda()
                 else:
-                    print 'NO CUDA'
+                    print ('NO CUDA')
         else:
-            print 'NOT PRE LOADING'
+            print ('NOT PRE LOADING')

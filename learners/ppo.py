@@ -47,7 +47,7 @@ class PPO():
         """
         tensor_type = type(rewards)
         returns = tensor_type(rewards.size(0), 1)
-        deltas = tensor_type(rewards.size(0), 1)
+        deltas = tensor_type(rewards.size(0), 1).to(masks.device)
         advantages = tensor_type(rewards.size(0), 1)
         prev_return = 0
         prev_value = 0
@@ -55,6 +55,10 @@ class PPO():
         for i in reversed(range(rewards.size(0))):
             returns[i] = rewards[i] + self.gamma * prev_return * masks[i]
             deltas[i] = rewards[i] + self.gamma * prev_value * masks[i] - values[i]
+
+
+
+
             advantages[i] = deltas[i] + self.gamma * self.tau * prev_advantage * masks[i]
 
             prev_return = returns[i, 0]

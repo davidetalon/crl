@@ -1,7 +1,7 @@
 import operator
 import regex as re
 from collections import OrderedDict
-import datautils as du
+import dataloader.datautils as du
 import numpy as np
 
 class Operator(object):

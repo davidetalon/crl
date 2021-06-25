@@ -7,7 +7,7 @@ from torch.autograd import Variable
 
 import numpy as np
 
-from encoders import CNN64fc_8
+from networks.encoders import CNN64fc_8
 
 class Function(nn.Module):
     def __init__(self, indim, outdim):

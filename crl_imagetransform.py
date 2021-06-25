@@ -4,6 +4,7 @@ import os
 import torch
 import torch.nn.functional as F
 import pprint
+import wandb
 
 from env_config import load_image_xforms_env, create_logger
 import mnist_trainer as ct
@@ -131,7 +132,7 @@ parser.add_argument('--plot_every', type=int, default=10000,
 parser.add_argument('--curr_every', type=int, default=30000,
                     help='curr every (default: 30000)')
 
-parser.add_argument('--outputdir', type=str, default='runs/image_verify/crl',
+parser.add_argument('--outputdir', type=str, default='runs/image_verify/crl_debug',
                     help='outputdir')
 parser.add_argument('--printf', action='store_true',
                     help='print to file')
@@ -221,12 +222,13 @@ def create_agent(args):
     return agent
 
 def main(args):
+    logger = wandb.init(project='crl', entity='davidetalon')
     args = process_args(args)
     logger = create_logger(build_expname, args)
     env = create_env(args)
     agent = create_agent(args)
     main_method = ct.eval if args.eval else ct.train
-    main_method(sample_data, lambda a, e, i, t, m: sample_episode(a, e, i, t, args.model, m), agent, logger, env, args)
+    main_method(sample_data, lambda a, e, i, t, m: sample_episode(a, e, i, t, args.model, m), agent, logger, env, args, logger)
 
 if __name__ == "__main__":
     main(args)

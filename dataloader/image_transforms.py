@@ -20,8 +20,8 @@ def batch_compatible(transform):
         if data.dim() == 3:
             return transform(data)
         elif data.dim() == 4:
-
-            transformed = map(transform, data)
+            
+            transformed = list(map(transform, data))
 
             if isinstance(transformed[0], Variable) or isinstance(transformed[0], torch.Tensor) or isinstance(transformed[0], torch.cuda.FloatTensor):
                 return torch.stack(transformed)
@@ -348,7 +348,7 @@ def place_subimage_in_background(bkdg_dim, rand=False):
         assert subimage.dim() == 3
         subimage_channels, subimage_height, subimage_width = subimage.size()
         assert subimage_height < bkdg_dim[0] and subimage_width < bkdg_dim[1]
-        bkgd = torch.zeros((subimage_channels, bkdg_dim[0], bkdg_dim[1]))
+        bkgd = torch.zeros((subimage_channels, bkdg_dim[0], bkdg_dim[1]), device=subimage.device)
         # get limits
         from_top_limit = bkdg_dim[0]-subimage_height+1
         from_left_limit = bkdg_dim[1]-subimage_width+1
@@ -356,8 +356,9 @@ def place_subimage_in_background(bkdg_dim, rand=False):
             top = np.random.randint(0, from_top_limit)
             left = np.random.randint(0, from_left_limit)
         else:
-            top = from_top_limit/2
-            left = from_left_limit/2
+            top = int(from_top_limit/2)
+            left = int(from_left_limit/2)
+
         # place subimage inside background
         bkgd[:, top:top+subimage_height, left:left+subimage_width] += subimage
         return bkgd

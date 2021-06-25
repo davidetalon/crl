@@ -9,7 +9,7 @@ def printf(logger, args, string):
         f = open(logger.logdir+'.txt', 'a')
         print >>f, string
     else:
-        print string
+        print (string)
 
 def create_exp_string(args, relevant_arg_names, prefix, suffix):
     string = prefix + '_'
@@ -31,7 +31,7 @@ def inrange(value, interval):
 
 def group_consecutive(list_of_numbers):
     groups = []
-    for k, g in groupby(enumerate(list_of_numbers), lambda (i, x): i-x):
+    for k, g in groupby(enumerate(list_of_numbers), lambda i, x: i-x):
         mg = map(itemgetter(1), g)
         groups.append(tuple(mg))
     return groups
@@ -68,7 +68,7 @@ def group_by_indices(list_of_numbers, idx_groupings):
     return [[list_of_numbers[i] for i in g] for g in idx_groupings]
 
 def invert_permutation(indices):
-    return [i for i, j in sorted(enumerate(indices), key=lambda (_, j): j)]
+    return [i for i, j in sorted(enumerate(indices), key=lambda _, j: j)]
 
 def sort_group_perm(lengths):
     perm_idx, sorted_lengths = sort_decr(lengths)
@@ -98,7 +98,7 @@ def var_length_in_batch_wrapper(fn, inputs, inputs_xform, input_to_group_by, arg
     group_idx, group_lengths = group_by_element(sorted_lengths)
     inputs_grp = map(lambda x: group_by_indices(x, group_idx), inputs_p)
     # convert every group in inputs_grp to torch tensor 
-    inputs_grp_th = map(lambda (f, y): map(f, y), zip(inputs_xform, inputs_grp))
+    inputs_grp_th = map(lambda f, y: map(f, y), zip(inputs_xform, inputs_grp))
     def execute_fn_on_grouped_inputs(fn, grouped_inputs):
         outputs = []
         for inp in zip(*grouped_inputs):
@@ -132,7 +132,7 @@ def var_length_var_dim_in_batch_wrapper(fn, inputs, inputs_xform, input_to_group
     group_idx, group_lengths = group_by_element(sorted_lengths)
     inputs_grp = map(lambda x: group_by_indices(x, group_idx), inputs_p)
     # convert every group in inputs_grp to torch tensor 
-    inputs_grp_th = map(lambda (f, y): map(f, y), zip(inputs_xform, inputs_grp))
+    inputs_grp_th = map(lambda f, y: map(f, y), zip(inputs_xform, inputs_grp))
     def execute_fn_on_grouped_inputs(fn, grouped_inputs):
         outputs = []
         for inp in zip(*grouped_inputs):

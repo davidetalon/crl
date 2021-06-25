@@ -8,9 +8,9 @@ import pprint
 
 from collections import OrderedDict
 
-from arithmetic import Plus, Minus, Multiply, Divide
+from dataloader.arithmetic import Plus, Minus, Multiply, Divide
 import utils
-import datautils as du
+import dataloader.datautils as du
 
 np.random.seed(0)
 
@@ -93,9 +93,9 @@ class ArithmeticDataGenerator(object):
         additive_terms = [du.sample_term_in_range(self.range)]
         additive_ops, additive_terms, exp_val = self._fold_left_ops_terms_sample(additive_ops, additive_terms)
         if self.verbose:
-            print 'Additive expression {} = {}'.format(
+            print ('Additive expression {} = {}'.format(
                 du.build_expression_string(additive_terms, additive_ops, self.operator_dict),
-                exp_val)
+                exp_val))
         return additive_ops, additive_terms, exp_val
 
     def create_multiplicative_expression(self):
@@ -181,7 +181,7 @@ class ArithmeticDataGenerator(object):
         # put everything together
         all_ops, all_terms = self.interleave_additive_multiplicative(additive_terms, additive_ops, additive_term_to_multiplicative_group)
         exp_str = du.build_expression_string(all_terms, all_ops, self.operator_dict)
-        if self.verbose: print 'Final Expression: {} = {}'.format(exp_str, exp_val)
+        if self.verbose: print ('Final Expression: {} = {}'.format(exp_str, exp_val))
         return exp_str, exp_val, all_terms, all_ops
 
     def encode_problem(self, exp_str, exp_val, terms, ops):

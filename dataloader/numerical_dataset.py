@@ -6,10 +6,10 @@ import copy
 import os
 import re
 
-from arithmetic import Plus, Minus, Multiply, Divide
-import datautils as du
+from dataloader.arithmetic import Plus, Minus, Multiply, Divide
+import dataloader.datautils as du
 from tqdm import tqdm
-from modulo_datagen import ModuloDataGenerator
+from dataloader.modulo_datagen import ModuloDataGenerator
 from utils import printf
 
 def mkdirp(logdir):
@@ -78,7 +78,7 @@ class BaseArithmetic(object):
         if logger is None:
             assert args is None
             def printer(x):
-                print x
+                print (x)
         else:
             printer = lambda x: printf(logger, args, x)
         self.printer = printer

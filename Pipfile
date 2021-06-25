@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+torch = "*"
+torchvision = "*"
+tqdm = "*"
+matplotlib = "*"
+numpy = "*"
+pandas = "*"
+nibabel = "*"
+regex = "*"
+wandb = "*"
+
+[dev-packages]
+pre-commit = "*"
+mypy = "*"
+isort = "*"
+flake8 = "*"
+black = "==20.8b1"
+
+[requires]
+python_version = "3.9"
+
+[packages.torchsample]
+git = "https://github.com/ncullen93/torchsample.git"

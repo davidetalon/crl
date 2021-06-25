@@ -6,6 +6,7 @@ import time
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
+import wandb
 
 import dataloader.datautils as du
 from dataloader.numerical_dataset import BaseArithmetic
@@ -31,6 +32,7 @@ def create_batch_transforms(env, bsize, mode, args):
     volatile = mode != 'train'
     initial, target = env.reset(mode, bsize)
     initial, target = Variable(initial, volatile=volatile), Variable(target, volatile=volatile)
+
     return initial, target
 
 def validate(data_sampler, episode_sampler, agent, env, args, logger, mode, i_episode):
@@ -71,7 +73,7 @@ def eval(data_sampler, episode_sampler, agent, logger, env, args, i_episode):
     ext = '_eval'
     logger.save(logger.expname+ext)
 
-def train(data_sampler, episode_sampler, agent, logger, env, args):
+def train(data_sampler, episode_sampler, agent, logger, env, args, wlogger):
     handle_resume(agent, args)
 
     run_avg = RunningAverage()
@@ -113,6 +115,7 @@ def train(data_sampler, episode_sampler, agent, logger, env, args):
                 logger.visualize_transformations('{}{}'.format('train', i_episode), *selected)
             selected = selected[1:]  # just get actions
 
+        wandb.log({'reward': reward, 'r_acc': running_accuracy, 'accuracy':correct, 'loss':loss})
         ###############################################################
         # stdout
         if i_episode % args.log_interval == 0:
@@ -219,8 +222,8 @@ def train(data_sampler, episode_sampler, agent, logger, env, args):
                 'running_loss': running_loss, 
                 'running_accuracy': running_accuracy}
             ckpt = {
-                'model': {k: to_cpu(v.state_dict()) for k,v in agent.model.iteritems()},
-                'optimizer': {k: v.state_dict() for k,v in agent.optimizer.iteritems()},
+                'model': {k: to_cpu(v.state_dict()) for k,v in agent.model.items()},
+                'optimizer': {k: v.state_dict() for k,v in agent.optimizer.items()},
                 'episode': i_episode,
                 'running_loss': running_loss,
                 'running_moves': running_moves,
@@ -253,10 +256,4 @@ def train(data_sampler, episode_sampler, agent, logger, env, args):
             printf(logger, args, '*'*80)
             printf(logger, args, 'Update Curriculum')
             printf(logger, args, '*'*80)
-            env.update_curriculum()
-
-        ##############################################################
-        if i_episode >= args.max_episodes:
-            printf(logger, args, 'Training done for {}'.format(logger.logdir))
-            break
 

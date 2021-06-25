@@ -17,6 +17,8 @@ def sample_episode(agent, env, initial, target, method, mode):
     selected = []
     episode_data = []
 
+    initial = initial.cuda()
+    target = target.cuda()
     # sample episode
     state = agent.encoder(initial)  # Variable (b, hdim)
     state, selected = agent.forward(env, state, selected, episode_data)

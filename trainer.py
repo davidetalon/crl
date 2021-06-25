@@ -3,7 +3,7 @@ import operator
 
 def to_cpu(state_dict):
     cpu_dict = {}
-    for k,v in state_dict.iteritems():
+    for k,v in state_dict.items():
         cpu_dict[k] = v.cpu()
     return cpu_dict
 
